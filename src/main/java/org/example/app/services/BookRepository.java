@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Repository
 public class BookRepository implements ProjectRepository<Book> {
@@ -29,10 +30,30 @@ public class BookRepository implements ProjectRepository<Book> {
     public boolean removeItemById(Integer bookIdToRemove) {
         for (Book book : retreiveAll()) {
             if (book.getId().equals(bookIdToRemove)) {
-                logger.info("remove book completed: " + book);
-                return repo.remove(book);
+                removeBook(book);
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean removeItemByRegex(String regex) {
+        for (Book book : retreiveAll()) {
+            if (Pattern.matches(regex, book.getTitle())) {
+                removeBook(book);
+            } else if (Pattern.matches(regex, book.getAuthor())) {
+                removeBook(book);
+            } else if (book.getSize()!= null){
+                if(Pattern.matches(regex, book.getSize().toString())) {
+                    removeBook(book);
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean removeBook(Book book){
+        logger.info("remove book completed: " + book);
+        return repo.remove(book);
     }
 }
